@@ -8,7 +8,7 @@
 import Foundation
 
 public enum HTTPClientresponse {
-    case success(HTTPURLResponse)
+    case success(Data, HTTPURLResponse)
     case failure(Error)
 }
 
@@ -34,7 +34,7 @@ public final  class RemoteFeedLoader {
         client.get(from: url) { result in
             switch result {
             case .failure(_): completion(.connectivity)
-            case .success(_): completion(.invalidData)
+            case .success(_, _): completion(.invalidData)
             }
         }
     }
