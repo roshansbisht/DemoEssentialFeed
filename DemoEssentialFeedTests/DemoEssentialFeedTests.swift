@@ -43,41 +43,37 @@ class RemoteFeedLoaderTests: XCTestCase {
     func test_load_deliversErrorOnClientError() {
         let (client, sut) = makeSUT()
         
-        var capturedErrors: [RemoteFeedLoader.Error] = []
-        sut.load() { capturedErrors.append($0) }
-        
-        let clientError = NSError(domain: "connectivity", code: 0, userInfo: nil)
-        
-        client.complete(with: clientError)
-        
-        XCTAssertEqual(capturedErrors, [.connectivity])
+        expect(sut, toCompleteWithError: .connectivity) {
+            let clientError = NSError(domain: "connectivity", code: 0, userInfo: nil)
+            client.complete(with: clientError)
+        }
         
     }
     
     func test_load_deliversHTTPInvalidResponse() {
         let (client, sut) = makeSUT()
-        
-        var capturedErrors: [RemoteFeedLoader.Error] = []
-        sut.load() { capturedErrors.append($0) }
-        
-        client.complete(withStatusCode: 400)
-        
-        XCTAssertEqual(capturedErrors, [.invalidData])
-        
+        expect(sut, toCompleteWithError: .invalidData) {
+            client.complete(withStatusCode: 400)
+        }
     }
     
     func test_load_delivers200ResponseWithINvalidData() {
         let (client, sut) = makeSUT()
+        expect(sut, toCompleteWithError: .invalidData) {
+            let invalidJSON = Data("Invalid JSON".utf8)
+            client.complete(withStatusCode: 400, data: invalidJSON)
+        }
+        
+    }
+    
+    func expect(_ sut: RemoteFeedLoader, toCompleteWithError error: RemoteFeedLoader.Error, when action:() -> Void, file: StaticString = #file, line: UInt = #line) {
         
         var capturedErrors: [RemoteFeedLoader.Error] = []
         sut.load() { capturedErrors.append($0) }
         
-        let invalidJSON = Data("Invalid JSON".utf8)
+        action()
         
-        client.complete(withStatusCode: 400, data: invalidJSON)
-        
-        XCTAssertEqual(capturedErrors, [.invalidData])
-        
+        XCTAssertEqual(capturedErrors, [error], file: file, line: line)
     }
     
     
