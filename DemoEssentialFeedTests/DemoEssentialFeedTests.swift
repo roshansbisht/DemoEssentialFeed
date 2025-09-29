@@ -66,14 +66,23 @@ class RemoteFeedLoaderTests: XCTestCase {
         
     }
     
+//    func test_load_deliversEmptyListJSON() {
+//        let (client, sut) = makeSUT()
+//        
+//        expect(sut, toCompleteWithError: .emptyData) {
+//            let emptyData = Data([])
+//            client.complete(withStatusCode: 200, data: emptyData)
+//        }
+//    }
+    
     func expect(_ sut: RemoteFeedLoader, toCompleteWithError error: RemoteFeedLoader.Error, when action:() -> Void, file: StaticString = #file, line: UInt = #line) {
         
-        var capturedErrors: [RemoteFeedLoader.Error] = []
+        var capturedErrors: [RemoteFeedLoader.Result] = []
         sut.load() { capturedErrors.append($0) }
         
         action()
         
-        XCTAssertEqual(capturedErrors, [error], file: file, line: line)
+        XCTAssertEqual(capturedErrors, [.failure(error)], file: file, line: line)
     }
     
     

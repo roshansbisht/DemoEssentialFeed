@@ -25,16 +25,21 @@ public final  class RemoteFeedLoader {
         case invalidData
     }
     
+    public enum Result: Equatable {
+        case success([FeedItem])
+        case failure(Error)
+    }
+    
     public init(client: HTTPClient, url: URL = URL(string: "https://rss.it/v2/cocoa.rss/api")!) {
         self.client = client
         self.url = url
     }
     
-    public func load(completion: @escaping (Error) -> Void) {
+    public func load(completion: @escaping (Result) -> Void) {
         client.get(from: url) { result in
             switch result {
-            case .failure(_): completion(.connectivity)
-            case .success(_, _): completion(.invalidData)
+            case .failure(_): completion(.failure(.connectivity))
+            case .success(_, _): completion(.failure(.invalidData))
             }
         }
     }
