@@ -30,7 +30,7 @@ public final  class RemoteFeedLoader {
         case failure(Error)
     }
     
-    public init(client: HTTPClient, url: URL = URL(string: "https://rss.it/v2/cocoa.rss/api")!) {
+    public init(client: HTTPClient, url: URL = URL(string: "https://a-http-url/api")!) {
         self.client = client
         self.url = url
     }
