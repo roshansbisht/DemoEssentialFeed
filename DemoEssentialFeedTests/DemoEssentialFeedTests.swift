@@ -66,16 +66,24 @@ class RemoteFeedLoaderTests: XCTestCase {
         
     }
     
-//    func test_load_deliversEmptyListJSON() {
-//        let (client, sut) = makeSUT()
-//        
-//        expect(sut, toCompleteWithError: .emptyData) {
-//            let emptyData = Data([])
-//            client.complete(withStatusCode: 200, data: emptyData)
-//        }
-//    }
+    func test_load_delivers200WithEmptyJSONResponse() {
+        let (client, sut) = makeSUT()
+        
+        //Action
+        var capturedResults: [RemoteFeedLoader.Result] = []
+        sut.load() { capturedResults.append($0) }
+        
+        
+        let emptyJSON = Data("{\"items\" : []}".utf8)
+        client.complete(withStatusCode: 200, data: emptyJSON)
     
-    func expect(_ sut: RemoteFeedLoader, toCompleteWithError error: RemoteFeedLoader.Error, when action:() -> Void, file: StaticString = #file, line: UInt = #line) {
+        XCTAssertEqual(capturedResults, [.success([])])
+    }
+    
+    
+    //MARK: Helper Functions & Factory Methods
+    
+    private func expect(_ sut: RemoteFeedLoader, toCompleteWithError error: RemoteFeedLoader.Error, when action:() -> Void, file: StaticString = #file, line: UInt = #line) {
         
         var capturedErrors: [RemoteFeedLoader.Result] = []
         sut.load() { capturedErrors.append($0) }
@@ -84,10 +92,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         
         XCTAssertEqual(capturedErrors, [.failure(error)], file: file, line: line)
     }
-    
-    
-    
-    // MARK:- Factory Methods
+
     private func makeSUT(url: URL = URL(string: BASE_URL)!) -> (SpyClient, RemoteFeedLoader) {
         let client = SpyClient()
         let sut = RemoteFeedLoader(client: client, url: url)
