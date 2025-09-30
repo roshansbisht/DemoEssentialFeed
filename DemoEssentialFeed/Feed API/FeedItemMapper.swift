@@ -33,4 +33,9 @@ internal final class FeedItemMapper {
         
         return items
     }
+    
+    internal static func map(_ data: Data, response: HTTPURLResponse) -> RemoteFeedLoader.Result {
+        guard let items = try? FeedItemMapper.mapTo(data, and: response) else { return .failure(.invalidData) }
+        return .success(items)
+    }
 }
