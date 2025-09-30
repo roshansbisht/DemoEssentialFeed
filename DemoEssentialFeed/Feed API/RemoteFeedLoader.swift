@@ -42,7 +42,7 @@ public final  class RemoteFeedLoader {
             case let .success(data, httpResponse):
                 if httpResponse.statusCode == 200,
                    let model = try? JSONDecoder().decode(RootItem.self, from: data) {
-                    completion(.success(model.items))
+                    completion(.success(model.items.map { $0.item }))
                 } else {
                     completion(.failure(.invalidData))
                 }
@@ -51,6 +51,19 @@ public final  class RemoteFeedLoader {
     }
     
     private struct RootItem: Decodable {
-        let items: [FeedItem]
+        let items: [Item]
     }
+    
+    private struct Item: Decodable {
+        let id: UUID
+        let location: String?
+        let description: String?
+        let image: URL
+        
+        var item: FeedItem {
+            FeedItem(id: id, location: location, description: description, imageURL: image)
+        }
+    }
+    
+    
 }
