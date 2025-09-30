@@ -95,6 +95,20 @@ class RemoteFeedLoaderTests: XCTestCase {
         }
     }
     
+    func test_load_checkRemoteFeedLoaderLoadsEvenAfterGettingNil() {
+        let client = SpyClient()
+        var sut: RemoteFeedLoader? = RemoteFeedLoader(client: client, url: URL(string: "https://any-url.com")!)
+        var capturedResults = [RemoteFeedLoader.Result]()
+        
+        sut?.load { capturedResults.append($0) }
+        
+        sut = nil
+        client.complete(withStatusCode: 200, data: makeFeedItemJSON())
+        
+        XCTAssertTrue(capturedResults.isEmpty)
+        
+    }
+    
     
     //MARK: Helper Functions & Factory Methods
     
